@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>YouTube Transcript Fetcher</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #0f172a;
+      color: #e5e7eb;
+      padding: 40px;
+      max-width: 900px;
+      margin: auto;
+    }
+
+    h1 {
+      margin-bottom: 10px;
+    }
+
+    p {
+      margin-bottom: 20px;
+      color: #cbd5f5;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
+      margin-bottom: 10px;
+      border-radius: 6px;
+      border: none;
+    }
+
+    button {
+      padding: 12px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      border-radius: 6px;
+      border: none;
+      margin-right: 10px;
+    }
+
+    button:hover:not(:disabled) {
+      opacity: 0.9;
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    #fetchBtn {
+      background: #2563eb;
+      color: white;
+    }
+
+    #copyBtn {
+      background: #16a34a;
+      color: white;
+    }
+
+    pre {
+      margin-top: 20px;
+      background: #020617;
+      padding: 20px;
+      white-space: pre-wrap;
+      max-height: 400px;
+      overflow-y: auto;
+      border-radius: 6px;
+      border: 1px solid #1e293b;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h1>YouTube Transcript Fetcher</h1>
+  <p>Paste a YouTube URL below. The backend will fetch the transcript, cache it in MySQL, and return it.</p>
+
+  <input
+    id="urlInput"
+    placeholder="https://www.youtube.com/watch?v=..."
+  />
+
+  <div>
+    <button id="fetchBtn" onclick="fetchTranscript()">Fetch transcript</button>
+    <button id="copyBtn" onclick="copyTranscript()" disabled>Copy transcript</button>
+  </div>
+
+  <p id="status"></p>
+
+  <pre id="output"></pre>
+
+  <script>
+    async function fetchTranscript() {
+      const url = document.getElementById("urlInput").value;
+      const output = document.getElementById("output");
+      const copyBtn = document.getElementById("copyBtn");
+      const fetchBtn = document.getElementById("fetchBtn");
+      const status = document.getElementById("status");
+  
+      if (!url) {
+        output.textContent = "Please enter a YouTube URL.";
+        return;
+      }
+  
+      fetchBtn.disabled = true;
+      copyBtn.disabled = true;
+      status.textContent = "Fetching transcript...";
+      output.textContent = "";
+  
+      try {
+        const res = await fetch("/transcript", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ youtube_url: url })
+        });
+  
+        const data = await res.json();
+  
+        if (data.error) {
+          status.textContent = "Error occurred";
+          output.textContent = data.error;
+        } else {
+          status.textContent =
+            data.source === "cache"
+              ? "Loaded from cache"
+              : "Fetched from YouTube";
+  
+          output.textContent = data.content;
+          copyBtn.disabled = false;
+        }
+      } catch (err) {
+        status.textContent = "Request failed";
+        output.textContent = "";
+      } finally {
+        fetchBtn.disabled = false;
+      }
+    }
+  
+    function copyTranscript() {
+      const text = document.getElementById("output").textContent;
+      navigator.clipboard.writeText(text).then(() => {
+        alert("Transcript copied to clipboard");
+      });
+    }
+  </script>
+
+</body>
+</html>
