@@ -1,6 +1,6 @@
 # YouTube Transcript
 
-An small personal project where I built and deployed a Flask application that fetches yt transcripts and caches them in MySQL database.
+A small personal project where I built and deployed a Flask application that fetches YouTube transcripts and caches them in a MySQL database.
 The main goal was not the app itself, but instead to learn how to containerize an app, deploy it on Azure VM, and understand the full flow from local development to running service on Azure.
 
 ---
@@ -36,7 +36,19 @@ Deployed manually on Azure VM:
 
 ---
 
-## What I learend
+## CI/CD (Jenkins)
+
+After the manual deployment, Jenkins was added to automate deployments.
+
+- Jenkins runs on the same Azure VM
+- A Jenkins pipeline is defined using Jenkinsfile
+- Each push to main branch triggers:
+  - git pull
+  - docker compose down
+  - docker compose up --build
+- GitHub webhooks are used to trigger the pipeline automatically
+
+## What I learned
 
 - How Docker images are built using Dockerfile
 - How Docker Compose connects services and networks
@@ -46,6 +58,7 @@ Deployed manually on Azure VM:
 
 ---
 
-## Next steps
+## Notes and limitations
 
-- Add Jenkins for automated deployment
+- Currently every push to the main branch triggers, including changes like readme. 
+- On a small VM (1GB RAM) , swap was required to run MySQL, Docker and Jenkins together.
