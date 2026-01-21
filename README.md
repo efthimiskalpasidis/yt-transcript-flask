@@ -46,12 +46,6 @@ Deployed manually on Azure VM:
 
 ---
 
-## Screenshots
-
-Screenshots from the Azure portal, terminal and the running app can be found in the 'screenshots/' folder.
-
----
-
 ## Next steps
 
 - Add Jenkins for automated deployment
